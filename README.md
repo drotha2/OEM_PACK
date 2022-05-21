@@ -31,3 +31,5 @@
 **2-open windows 10-11 ISO USING ultra ISO.**
 
 **3-Copy the contant of the folder to ISO root, and save.**
+
+**4-Install ISO, and dont use any key. just press enter.**

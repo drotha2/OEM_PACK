@@ -28,8 +28,8 @@
   ````
 
 # How to use ?
-1-extract all file to temporary folder.
+**1-extract all file to temporary folder.**
 
-2-open windows 10-11 ISO USING ultra ISO.
+**2-open windows 10-11 ISO USING ultra ISO.**
 
-3-Copy the contant of the folder to ISO root, and save.
+**3-Copy the contant of the folder to ISO root, and save.**

@@ -27,7 +27,7 @@
 - **Custom scripts**
   ````
   you can add any custom CMD scripts in
-  @ [sources/$OEM$/$$/Setup/Scripts/](https://github.com/DarkDinosaurEx/OEM_PACK/tree/main/sources/%24OEM%24/%24%24/Setup/Scripts) @
+  @ sources/$OEM$/$$/Setup/Scripts/ @
   and it wil be auto installed,
   using smart script.
   ````

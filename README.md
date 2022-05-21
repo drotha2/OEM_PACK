@@ -7,8 +7,8 @@
   ````
   Auto install configure windows,
   Disable WU, Install Local account,
-  Bypass TMP, Disable UAC, System Restore,
-  Ignore update Install. and many more.
+  Bypass TPM, Disable UAC, Disable System Restore,
+  bypass update Install. and many more.
   the only thing you have to change,
   is the time zone. it set to israel Time.
   [Based on avayo version, improve one]

@@ -23,6 +23,7 @@
   any deblot, and clean the system
   also patch up the system
   make it run better
+  will run after logon, from RunOnce Command,
   ````
 
 # How to use ?

@@ -11,6 +11,7 @@
   Ignore update Install. and many more.
   the only thing you have to change,
   is the time zone. it set to israel Time.
+  [Based on avayo version, improve one]
   ````
 - **KMS ACTIVATION TOOL**
   ````

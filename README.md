@@ -17,3 +17,10 @@ Contain [3] files.
   Auto activate windows / office
   before first logon
   ````
+- **Windows Auto Configurator**
+  ````
+  Automatic tool to remove
+  any deblot, and clean the system
+  also patch up the system
+  make it run better
+  ````

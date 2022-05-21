@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8"?>
+<unattend xmlns="urn:schemas-microsoft-com:unattend">
+    <settings pass="windowsPE">
+        <component name="Microsoft-Windows-Setup" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <!-- Fake key ... -->
+            <UserData>
+                <ProductKey>
+                    <Key>AAAAA-VVVVV-EEEEE-YYYYY-OOOOO</Key>
+                    <WillShowUI>OnError</WillShowUI>
+                </ProductKey>
+                <AcceptEula>true</AcceptEula>
+                <FullName>Admin</FullName>
+            </UserData>
+            <!-- Hmm ... -->
+            <ComplianceCheck>
+                <DisplayReport>Never</DisplayReport>
+            </ComplianceCheck>
+            <Diagnostics>
+                <OptIn>false</OptIn>
+            </Diagnostics>
+            <DynamicUpdate>
+                <Enable>true</Enable>
+                <WillShowUI>Never</WillShowUI>
+            </DynamicUpdate>
+            <EnableNetwork>false</EnableNetwork>
+            <RunSynchronous>
+                <!-- Skip 11 Checks on Boot via reg - unreliable vs winsetup.dll patch used in MediaCreationTool.bat -->
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>1</Order>
+                    <Path>cmd /c for %$ IN (TPM, SecureBoot, RAM, Storage, CPU) do reg add HKLM\SYSTEM\Setup\LabConfig /v Bypass%$Check /d 1 /t reg_dword /f</Path>
+                </RunSynchronousCommand>
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>2</Order>
+                    <Path>reg add HKLM\SYSTEM\Setup\MoSetup /f /v AllowUpgradesWithUnsupportedTPMorCPU /d 1 /t reg_dword</Path>
+                </RunSynchronousCommand>
+            </RunSynchronous>
+        </component>
+    </settings>
+    <!-- DISABLE UAC -->
+    <settings pass="offlineServicing">
+        <component name="Microsoft-Windows-LUA-Settings" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <EnableLUA>false</EnableLUA>
+        </component>
+    </settings>
+    <settings pass="specialize">
+        <component name="Microsoft-Windows-Deployment" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <RunSynchronous>
+                <!-- offline local account via OOBE\BYPASSNRO on every site but literally no one credits AveYo for sharing it -->
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>1</Order>
+                    <Path>reg add HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\OOBE /v BypassNRO /t reg_dword /d 1 /f</Path>
+                </RunSynchronousCommand>
+                <!-- hide unsupported nag on update settings - 25H1 is not a typo ;) -->
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>2</Order>
+                    <Path>reg add HKLM\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate /v TargetReleaseVersion /d 1 /t reg_dword /f</Path>
+                </RunSynchronousCommand>
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>3</Order>
+                    <Path>reg add HKLM\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate /v TargetReleaseVersionInfo /d 25H1 /f</Path>
+                </RunSynchronousCommand>
+                <!-- Disable Defender -->
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>4</Order>
+                    <Path>REG ADD "HKLM\SOFTWARE\Microsoft\Windows Defender\Features" /f /v DisableAntiSpyware /d 1 /t REG_DWORD</Path>
+                </RunSynchronousCommand>
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>5</Order>
+                    <Path>REG ADD "HKLM\SOFTWARE\Microsoft\Windows Defender\Features" /f /v TamperProtection /d 0 /t REG_DWORD</Path>
+                </RunSynchronousCommand>
+				<RunSynchronousCommand wcm:action="add">
+                    <Order>6</Order>
+                    <Path>cmd /c for %$ IN (WinDefend, WdBoot, WdFilter, Sense, WdNisDrv, WdNisSvc) do sc config %$ start=disabled</Path>
+                </RunSynchronousCommand>
+				<RunSynchronousCommand wcm:action="add">
+                    <Order>7</Order>
+                    <Path>powershell -noprofile -executionpolicy bypass -command "Get-NetAdapter | Disable-NetAdapter -Confirm:$false"</Path>
+                </RunSynchronousCommand>
+				<RunSynchronousCommand wcm:action="add">
+                    <Order>8</Order>
+                    <Path>cmd /c reg add "HKLM\Software\Microsoft\Windows\CurrentVersion\RunOnce" /f /v "1" /t Reg_SZ /d "powershell -noprofile -executionpolicy bypass -command \"Get-NetAdapter ^| Enable-NetAdapter -Confirm:$false\""</Path>
+                </RunSynchronousCommand>
+				<RunSynchronousCommand wcm:action="add">
+                    <Order>9</Order>
+                    <Path>cmd /c reg add "HKLM\Software\Microsoft\Windows\CurrentVersion\RunOnce" /f /v "2" /t Reg_SZ /d "reg add \"HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon\" /f /v AutoAdminLogon /t Reg_SZ /d \"0\""</Path>
+                </RunSynchronousCommand>
+				<RunSynchronousCommand wcm:action="add">
+                    <Order>10</Order>
+                    <Path>cmd /c reg add "HKLM\Software\Microsoft\Windows\CurrentVersion\RunOnce" /f /v "3" /t Reg_SZ /d "cmd /c call \"c:\windows\Windows Auto Configure.cmd\""</Path>
+                </RunSynchronousCommand>
+            </RunSynchronous>
+        </component>
+        <!-- Disable System Restore -->
+        <component name="Microsoft-Windows-SystemRestore-Main" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <DisableSR>1</DisableSR>
+        </component>
+        <!-- Skip Auto Activation -->
+        <component name="Microsoft-Windows-Security-SPP-UX" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <SkipAutoActivation>true</SkipAutoActivation>
+        </component>
+    </settings>
+    <settings pass="oobeSystem">
+        <!-- Disable Defender -->
+        <component name="Security-Malware-Windows-Defender" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <DisableAntiSpyware>true</DisableAntiSpyware>
+        </component>
+        <!-- Create User Name Admin -->
+        <component name="Microsoft-Windows-Shell-Setup" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <AutoLogon>
+                <Password>
+                    <Value></Value>
+                    <PlainText>true</PlainText>
+                </Password>
+                <Enabled>true</Enabled>
+                <Username>Admin</Username>
+            </AutoLogon>
+            <OOBE>
+                <HideEULAPage>true</HideEULAPage>
+                <HideOEMRegistrationScreen>true</HideOEMRegistrationScreen>
+                <SkipUserOOBE>true</SkipUserOOBE>
+                <SkipMachineOOBE>true</SkipMachineOOBE>
+                <HideLocalAccountScreen>true</HideLocalAccountScreen>
+                <HideOnlineAccountScreens>true</HideOnlineAccountScreens>
+                <HideWirelessSetupInOOBE>true</HideWirelessSetupInOOBE>
+                <ProtectYourPC>3</ProtectYourPC>
+            </OOBE>
+            <UserAccounts>
+                <LocalAccounts>
+                    <LocalAccount wcm:action="add">
+                        <Password>
+                            <Value></Value>
+                            <PlainText>true</PlainText>
+                        </Password>
+                        <Description></Description>
+                        <DisplayName>Admin</DisplayName>
+                        <Group>Administrators</Group>
+                        <Name>Admin</Name>
+                    </LocalAccount>
+                </LocalAccounts>
+            </UserAccounts>
+            <RegisteredOwner>Admin</RegisteredOwner>
+            <TimeZone>Israel Standard Time</TimeZone>
+            <FirstLogonCommands>
+                <!-- hide unsupported nag on desktop - originally shared by awuctl @ MDL -->
+                <SynchronousCommand wcm:action="add">
+                    <Order>1</Order>
+                    <CommandLine>cmd /c for %$ IN (SV1, SV2) do reg add "HKCU\Control Panel\UnsupportedHardwareNotificationCache" /v %$ /d 0 /t reg_dword /f</CommandLine>
+                </SynchronousCommand>
+                <!-- set WU to notify mode -->
+                <SynchronousCommand wcm:action="add">
+                    <Order>2</Order>
+                    <CommandLine>reg add "HKLM\Software\Policies\Microsoft\Windows\WindowsUpdate\AU" /f /v NoAutoUpdate /d 0x1 /t REG_DWORD</CommandLine>
+                </SynchronousCommand>
+                <SynchronousCommand wcm:action="add">
+                    <Order>3</Order>
+                    <CommandLine>reg add "HKLM\Software\Policies\Microsoft\Windows\WindowsUpdate\AU" /f /v AUOptions /d 0x2 /t REG_DWORD</CommandLine>
+                </SynchronousCommand>
+            </FirstLogonCommands>
+        </component>
+    </settings>
+</unattend>

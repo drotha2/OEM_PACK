@@ -1,7 +1,7 @@
 # CUSTOM OEM PACK
 **Custom OEM pack for Activate / Debloat Windows 10-11 ISO**
 
-**Contain [3] files.**
+**Contain [4] files.**
 
 - **AutoUnattend.XML file**
   ````
@@ -23,6 +23,13 @@
   Automatic tool to remove any deblot, and clean the system.
   also patch up the system, to make it run better.
   will run after logon, from RunOnce Command.
+  ````
+- **Custom scripts**
+  ````
+  you can add any custom CMD scripts in
+  @ sources/$OEM$/$$/Setup/Scripts/ @
+  and it wil be auto installed,
+  using smart script.
   ````
 
 # How to use ?
